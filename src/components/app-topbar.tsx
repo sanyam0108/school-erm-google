@@ -10,36 +10,55 @@ import {
 import Link from "next/link"
 
 const NAVIGATION = [
-  { name: "Management", items: [] },
+  { 
+    name: "Management", 
+    items: [
+      { name: "Session", href: "/management/session" },
+      { name: "Financial Year", href: "/management/financial-year" },
+      { name: "Fee", href: "#" },
+      { name: "Initialize Document's Serial No", href: "/management/document-serial" },
+      { name: "Data Upload", href: "#" },
+      { separator: true },
+      { name: "Exit", href: "#" }
+    ] 
+  },
   { name: "FrontDesk", items: [] },
   {
     name: "Student Manager",
     items: [
       { name: "Enquiry Form", href: "#" },
       { name: "Registration Form", href: "/students/register", shortcut: "Ctrl+N" },
-      { name: "Add Fee to Student Account", href: "#" },
-      { name: "Change Student's Class/Section", href: "#" },
-      { name: "Promote Student's Class", href: "#" },
+      { name: "Release / Discharge Student", href: "/students/discharge" },
       { separator: true },
-      { name: "Attendance", href: "#" },
-      { name: "Absentee List", href: "#" },
-      { name: "Print Admission Form", href: "#" },
-      { name: "Print ID Card", href: "#" },
       { name: "Student Report", href: "#" },
       { name: "Search Student", href: "/students" },
-      { name: "Update SR Number", href: "#" },
-      { name: "Update TC Status", href: "#" },
     ]
   },
-  { name: "Accounts", items: [] },
+  { 
+    name: "Accounts", 
+    items: [
+      { name: "Fees Configuration", href: "/fees/configure" },
+      { name: "Payment Entry", href: "/fees/payment" },
+      { separator: true },
+      { name: "Student Ledger", href: "/students/ledger" },
+    ] 
+  },
   { name: "Transport", items: [] },
   { name: "Examination", items: [] },
-  { name: "Certificates", items: [] },
+  { 
+    name: "Certificates", 
+    items: [
+      { name: "Bonafide Certificate", href: "#" },
+      { name: "Study Certificate", href: "#" },
+      { name: "Character Certificate", href: "#" },
+      { name: "Fee Certificate", href: "#" },
+      { name: "Transfer Certificate", href: "#" },
+    ] 
+  },
   { name: "Reports", items: [] },
   { name: "Communication", items: [] },
   { name: "Library", items: [] },
   { name: "Stock", items: [] },
-  { name: "Exit", items: [] },
 ]
 
 export function AppTopbar() {
@@ -56,8 +75,8 @@ export function AppTopbar() {
                 item.separator ? (
                   <DropdownMenuSeparator key={`sep-${index}`} className="my-0" />
                 ) : (
-                  <DropdownMenuItem key={item.name} asChild className="rounded-none cursor-pointer py-1.5 px-3 hover:bg-black/5">
-                    <Link href={item.href || "#"} className="flex justify-between items-center w-full">
+                  <DropdownMenuItem key={item.name} className="rounded-none cursor-pointer p-0 hover:bg-black/5">
+                    <Link href={item.href || "#"} className="flex justify-between items-center w-full py-1.5 px-3">
                       <span>{item.name}</span>
                       {item.shortcut && <span className="text-muted-foreground text-[11px]">{item.shortcut}</span>}
                     </Link>

@@ -1,3 +1,6 @@
+"use client"
+
+import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -19,6 +22,8 @@ function DenseInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
 }
 
 export default function RegistrationForm() {
+  const router = useRouter();
+
   return (
     <div className="max-w-6xl mx-auto bg-white min-h-screen border-x shadow-sm">
       {/* Top Header / Search */}
@@ -138,7 +143,7 @@ export default function RegistrationForm() {
 
       {/* Footer Buttons */}
       <div className="border-t p-3 flex gap-2">
-         <button className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">SAVE</button>
+         <button onClick={() => router.push('/fees/configure')} className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">SAVE</button>
          <button className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">RESET</button>
          <button className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">EXIT</button>
       </div>
