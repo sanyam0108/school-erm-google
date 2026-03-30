@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Modern cloud-based Student Management System",
 };
 
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: Readonly<{
