@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { registerStudentAction } from "@/app/actions/students"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -61,7 +62,7 @@ export default function RegistrationForm() {
               <Field label="Students's Name" required><DenseInput /></Field>
               <Field label="Father's Name" required><DenseInput /></Field>
               <Field label="Mother's Name" required><DenseInput /></Field>
-              <Field label="DOB (dd/mm/yyyy)"><DenseInput /></Field>
+              <Field label="DOB (dd/mm/yyyy)" required><DenseInput /></Field>
               <Field label="Age"><DenseInput className="bg-slate-100" readOnly /></Field>
             </div>
 
@@ -143,9 +144,11 @@ export default function RegistrationForm() {
 
       {/* Footer Buttons */}
       <div className="border-t p-3 flex gap-2">
-         <button onClick={() => router.push('/fees/configure')} className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">SAVE</button>
-         <button className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">RESET</button>
-         <button className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">EXIT</button>
+         <form action={registerStudentAction}>
+           <button type="submit" className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">SAVE STUDENT (SERVER ACTION)</button>
+         </form>
+         <button type="button" className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">RESET</button>
+         <button type="button" className="bg-black text-white text-[11px] font-bold px-4 py-1.5 hover:bg-slate-800 transition-colors shadow">EXIT</button>
       </div>
 
     </div>

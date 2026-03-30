@@ -15,23 +15,43 @@ const NAVIGATION = [
     items: [
       { name: "Session", href: "/management/session" },
       { name: "Financial Year", href: "/management/financial-year" },
-      { name: "Fee", href: "#" },
+      { name: "Fee", href: "/management/fee" },
       { name: "Initialize Document's Serial No", href: "/management/document-serial" },
       { name: "Data Upload", href: "#" },
       { separator: true },
       { name: "Exit", href: "#" }
     ] 
   },
-  { name: "FrontDesk", items: [] },
+  { 
+    name: "FrontDesk", 
+    items: [
+      { name: "Add classes", href: "/frontdesk/classes" },
+      { name: "Add rooms", href: "#" },
+      { name: "Add subjects", href: "/frontdesk/subjects" },
+      { name: "Staff management", href: "#" },
+      { name: "Time table", href: "#" },
+      { name: "Books list", href: "#" },
+      { name: "Holidays", href: "#" },
+      { name: "Birthday", href: "#" },
+    ] 
+  },
   {
     name: "Student Manager",
     items: [
       { name: "Enquiry Form", href: "#" },
       { name: "Registration Form", href: "/students/register", shortcut: "Ctrl+N" },
-      { name: "Release / Discharge Student", href: "/students/discharge" },
-      { separator: true },
+      { name: "Add Fee to Student Account", href: "#" },
+      { name: "Change Students's Class/Section", href: "/students/change-class-section" },
+      { name: "Promote Student's Class", href: "/students/promote" },
+      { name: "Release Student / Discharge", href: "/students/discharge" },
+      { name: "Attendance", href: "#" },
+      { name: "Absentee List", href: "#" },
+      { name: "Print Admission Form", href: "#" },
+      { name: "Print ID Card", href: "/students/id-card" },
       { name: "Student Report", href: "#" },
       { name: "Search Student", href: "/students" },
+      { name: "Update SR Number", href: "#" },
+      { name: "Update TC Status", href: "#" },
     ]
   },
   { 
@@ -48,9 +68,9 @@ const NAVIGATION = [
   { 
     name: "Certificates", 
     items: [
-      { name: "Bonafide Certificate", href: "#" },
+      { name: "Bonafide Certificate", href: "/certificates/bonafide" },
       { name: "Study Certificate", href: "#" },
-      { name: "Character Certificate", href: "#" },
+      { name: "Character Certificate", href: "/certificates/character" },
       { name: "Fee Certificate", href: "#" },
       { name: "Transfer Certificate", href: "#" },
     ] 
