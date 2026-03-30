@@ -132,22 +132,16 @@ export default function PrintMarksheetPage() {
                     ) : students.length === 0 ? (
                       <tr><td colSpan={13} className="text-center py-4 font-bold text-red-500 bg-red-50">No Students Found. Upload Excel data.</td></tr>
                     ) : students.map((s, idx) => (
-                      <tr key={s.id} className="hover:bg-blue-50 bg-white">
-                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-800">{idx + 1}</td>
-                        <td className="border border-slate-300 p-1">
-                          <input type="checkbox" className="mx-auto block" />
+                      <tr key={s.id || idx} className="hover:bg-blue-50 bg-white">
+                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-800">
+                           <input type="checkbox" className="mx-auto block" />
                         </td>
-                        <td className="border border-slate-300 p-1 text-center font-bold text-slate-800">{s.sr}</td>
-                        <td className="border border-slate-300 p-1 text-left pl-2 font-bold text-slate-800">{s.name}</td>
-                        <td className="border border-slate-300 p-1 text-left pl-2 font-semibold text-slate-700">{s.fname}</td>
-                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-700">{s.current_class || s.admit_class}</td>
+                        <td className="border border-slate-300 p-1 text-center font-bold text-slate-800">{s.sr || "-"}</td>
+                        <td className="border border-slate-300 p-1 text-left pl-2 font-bold text-slate-800">{s.name || "Unknown"}</td>
+                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-700">{s.current_class || s.admit_class || "-"}</td>
                         <td className="border border-slate-300 p-1 text-center font-semibold text-slate-700">-</td>
-                        <td className="border border-slate-300 p-1 text-center text-slate-700">{s.fcontact}</td>
-                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-700">2026-27</td>
-                        <td className="border border-slate-300 p-1 text-center font-bold text-green-700">Generated</td>
-                        <td className="border border-slate-300 p-1 bg-red-100 text-center font-bold text-red-700">-</td>
-                        <td className="border border-slate-300 p-1 bg-yellow-50 text-center">False</td>
-                        <td className="border border-slate-300 p-1 bg-yellow-50 text-center border-r-0">False</td>
+                        <td className="border border-slate-300 p-1 text-center font-bold text-slate-700">0</td>
+                        <td className="border border-slate-300 p-1 bg-yellow-50 text-center border-r-0 font-semibold">-</td>
                       </tr>
                     ))}
                   </tbody>

@@ -165,8 +165,8 @@ export default function StudentReportPage() {
                         ) : data.map((s, idx) => (
                            <tr key={s.id} className="hover:bg-blue-50/50 bg-white">
                              <td className="border border-slate-400 p-1 border-l-0 font-semibold">{idx + 1}</td>
-                             <td className="border border-slate-400 p-1 text-slate-700">{s.id.substring(0,6)}</td>
-                             <td className="border border-slate-400 p-1 text-slate-700 font-bold">{s.sr}</td>
+                             <td className="border border-slate-400 p-1 text-slate-700">{s.id ? String(s.id).substring(0,6) : "N/A"}</td>
+                             <td className="border border-slate-400 p-1 text-slate-700 font-bold">{s.sr || "-"}</td>
                              <td className="border border-slate-400 p-1 text-left pl-2 font-bold text-slate-800">{s.name}</td>
                              <td className="border border-slate-400 p-1 text-left pl-2 font-semibold text-slate-700">{s.fname}</td>
                              <td className="border border-slate-400 p-1 text-slate-700">{s.fcontact}</td>
