@@ -29,7 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#f0f0f0]`}
       >
-        <TooltipProvider>
+         <TooltipProvider>
           {/* Top Navigation replacing Sidebar */}
           <AppTopbar />
           {/* Main workspace matching the style of old windows apps */}
@@ -38,6 +38,15 @@ export default function RootLayout({
                {children}
              </div>
           </main>
+          
+          {/* Global Branding Overlay */}
+          <div className="fixed bottom-4 right-6 z-50 pointer-events-none opacity-80 flex flex-col items-end">
+             <a href="https://cacsalw.com" target="_blank" className="pointer-events-auto transition-transform hover:scale-105" title="Children's Academy (cacsalw.com)">
+               <div className="bg-white/90 backdrop-blur-sm px-4 py-2 shadow-lg border border-slate-300 rounded-md flex items-center justify-center">
+                 <img src="http://cacsramgarh.com/wp-content/uploads/2022/05/dark-logo.png" alt="Children's Academy Logo" className="h-8 object-contain mix-blend-multiply" />
+               </div>
+             </a>
+          </div>
         </TooltipProvider>
       </body>
     </html>

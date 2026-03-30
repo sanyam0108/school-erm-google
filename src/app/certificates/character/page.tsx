@@ -115,12 +115,16 @@ export default function CharacterCertificateGenerator() {
 
       {/* Footer Action Bar */}
       <div className="bg-[#ff8c8c] p-2 flex items-center gap-4 shrink-0 border-t border-slate-600">
-         <button className="bg-white border-2 border-slate-400 text-slate-800 font-bold px-6 py-1 hover:bg-slate-50 shadow-sm transition-colors">
-            Generate Character Certificate
-         </button>
-         <button className="bg-white border-2 border-slate-400 text-slate-800 font-bold px-6 py-1 hover:bg-slate-50 shadow-sm transition-colors">
-            Exit
-         </button>
+         <Link href={`/certificates/character/print?reg=${selectedReg}&session=${session}`} target="_blank">
+           <button className="bg-white border-2 border-slate-400 text-slate-800 font-bold px-6 py-1 hover:bg-slate-50 shadow-sm transition-colors">
+              Generate Character Certificate
+           </button>
+         </Link>
+         <Link href="/">
+           <button className="bg-white border-2 border-slate-400 text-slate-800 font-bold px-6 py-1 hover:bg-slate-50 shadow-sm transition-colors">
+              Exit
+           </button>
+         </Link>
       </div>
 
     </div>
