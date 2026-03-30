@@ -2,8 +2,9 @@
 
 import { useSearchParams } from 'next/navigation'
 import Image from 'next/image'
+import { Suspense } from 'react'
 
-export default function CharacterCertificatePrint() {
+function CharacterTemplate() {
   return (
     <div className="w-full bg-slate-200 min-h-screen py-8 flex justify-center print:bg-white print:py-0">
       
@@ -63,5 +64,13 @@ export default function CharacterCertificatePrint() {
       </div>
 
     </div>
+  )
+}
+
+export default function CharacterCertificatePrint() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-500 font-bold">Loading Certificate engine...</div>}>
+      <CharacterTemplate />
+    </Suspense>
   )
 }

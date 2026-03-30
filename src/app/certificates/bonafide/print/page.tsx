@@ -1,9 +1,9 @@
 "use client"
 
 import { useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 
-export default function PrintableBonafide() {
+function BonafideTemplate() {
   const searchParams = useSearchParams()
   const regNo = searchParams.get('reg') || "3576"
   const session = searchParams.get('session') || "2026-27"
@@ -118,5 +118,13 @@ export default function PrintableBonafide() {
       </div>
 
     </div>
+  )
+}
+
+export default function PrintableBonafide() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-500 font-bold">Loading Certificate engine...</div>}>
+      <BonafideTemplate />
+    </Suspense>
   )
 }
