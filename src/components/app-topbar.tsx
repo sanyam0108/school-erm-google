@@ -23,7 +23,7 @@ const NAVIGATION: any[] = [
       { name: "Fee", href: "/management/fee" },
       { name: "Initialize Document's Serial No", href: "/management/document-serial" },
       { separator: true },
-      { name: "Data upload", href: "#" },
+      { name: "Data upload", href: "/management/data-upload" },
       { name: "Users", href: "#" },
       { name: "Backup", href: "#" },
       { name: "Restore", href: "#" },
