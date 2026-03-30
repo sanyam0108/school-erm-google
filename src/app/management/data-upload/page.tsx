@@ -30,9 +30,17 @@ export default function DataUpload() {
       const wb = xlsx.read(bstr, { type: "binary" })
       const wsname = wb.SheetNames[0]
       const ws = wb.Sheets[wsname]
-      const data = xlsx.utils.sheet_to_json(ws)
-      setParsedData(data)
-      setStatus(`Successfully parsed ${data.length} student records! Ready for database insertion.`)
+      const rawData = xlsx.utils.sheet_to_json(ws)
+      // Hard sanitize all headers because Excel often has hidden trailing spaces, like "Name " instead of "Name"
+      const sanitizedData = rawData.map((row: any) => {
+         const cleanRow: any = {}
+         Object.keys(row).forEach(k => {
+            cleanRow[k.trim()] = typeof row[k] === 'string' ? row[k].trim() : row[k]
+         })
+         return cleanRow
+      })
+      setParsedData(sanitizedData)
+      setStatus(`Successfully parsed ${sanitizedData.length} student records! Ready for database insertion.`)
     }
     reader.readAsBinaryString(selectedFile)
   }
@@ -78,8 +86,8 @@ export default function DataUpload() {
          const chunk = payload.slice(i, i + chunkSize)
          const { error } = await supabase.from('students').insert(chunk)
          if (error) {
-            console.error(error)
-            throw new Error(error.message)
+            console.error("SUPABASE ERROR:", error)
+            throw new Error(`Database Error: ${error.message} (Hint: Did you run the schema.sql in Supabase?)`)
          }
       }
       

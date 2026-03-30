@@ -57,12 +57,28 @@ export default function StudentReportPage() {
                 <div className="flex gap-2">
                    <input type="checkbox" className="mt-2" /> <span className="text-[10px] mt-1.5">All</span>
                 </div>
-                <select multiple className="border border-slate-300 w-full h-24 p-1 text-[11px]">
-                   <option>IV-A</option>
-                   <option>V-A</option>
-                   <option>VI-A</option>
-                   <option selected className="bg-blue-500 text-white">VII-A</option>
-                </select>
+                 <select multiple className="border border-slate-300 w-full h-32 p-1 text-[11px] font-semibold text-slate-700 bg-white">
+                    <option>NURSERY</option>
+                    <option>LKG</option>
+                    <option>UKG</option>
+                    <option>I</option>
+                    <option>II</option>
+                    <option>III</option>
+                    <option>IV</option>
+                    <option>V-A</option>
+                    <option>V-B</option>
+                    <option>VI-A</option>
+                    <option>VI-B</option>
+                    <option>VII-A</option>
+                    <option>VII-B</option>
+                    <option>VIII-A</option>
+                    <option>VIII-B</option>
+                    <option>IX-A</option>
+                    <option>IX-B</option>
+                    <option>IX-C</option>
+                    <option>IX-D</option>
+                    <option>XI</option>
+                 </select>
              </div>
 
              {/* Dropdown Filters Block */}
