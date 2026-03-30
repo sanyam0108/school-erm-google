@@ -18,16 +18,18 @@ const NAVIGATION: any[] = [
   { 
     name: "Management", 
     items: [
-      { name: "Add / Delete / Update Basic School Details", href: "#" },
-      { name: "Documents Initialise (SR No, TC No etc)", href: "/management/documents-init" },
-      { name: "Initialise Session", href: "/management/sessions" },
-      { name: "Initialise FY", href: "/management/fiscal-years" },
+      { name: "Session", href: "/management/session" },
+      { name: "Financial Year", href: "/management/financial-year" },
+      { name: "Fee", href: "/management/fee" },
+      { name: "Initialize Document's Serial No", href: "/management/document-serial" },
       { separator: true },
       { name: "Data upload", href: "#" },
       { name: "Users", href: "#" },
       { name: "Backup", href: "#" },
       { name: "Restore", href: "#" },
       { name: "Copy previous sessions structure", href: "#" },
+      { separator: true },
+      { name: "Exit", href: "#" }
     ] 
   },
   { 
