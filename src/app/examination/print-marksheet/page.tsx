@@ -1,17 +1,22 @@
 "use client"
 
-import { useState } from "react"
-
-const mockStudents = [
-  { reg: "4817", name: "HARDIK", class: "II", sec: "A", total: "1362", result: "Pass" },
-  { reg: "1667", name: "HARDITYA SINGH", class: "VIII", sec: "A", total: "1468", result: "Pass" },
-  { reg: "5386", name: "HARDIK GUPTA", class: "VIII", sec: "B", total: "1299", result: "Pass" },
-  { reg: "5364", name: "HARDIK MEENA", class: "IX", sec: "C", total: "844", result: "Pass" },
-]
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function PrintMarksheetPage() {
-  const [selectedIds, setSelectedIds] = useState<string[]>(["1667"])
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: false })
+      if (!error && data) setStudents(data)
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
   const handleSelect = (regNo: string) => {
     if (selectedIds.includes(regNo)) {
       setSelectedIds(selectedIds.filter(id => id !== regNo))
@@ -122,27 +127,28 @@ export default function PrintMarksheetPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockStudents.map((s, idx) => (
-                       <tr key={s.reg} className={`hover:bg-blue-50/80 cursor-pointer ${selectedIds.includes(s.reg) ? 'bg-[#3b82f6]/10' : 'bg-white'}`}>
-                         <td className="border border-slate-300 p-1 border-l-0 w-12 text-center h-[26px]">
-                            <input 
-                              type="checkbox" 
-                              checked={selectedIds.includes(s.reg)}
-                              onChange={() => handleSelect(s.reg)} 
-                            />
-                         </td>
-                         <td className="border border-slate-300 p-1 text-slate-700">{s.reg}</td>
-                         <td className="border border-slate-300 p-1 font-bold text-slate-800 uppercase">{s.name}</td>
-                         <td className="border border-slate-300 p-1 font-semibold">{s.class}</td>
-                         <td className="border border-slate-300 p-1 font-semibold">{s.sec}</td>
-                         <td className="border border-slate-300 p-1 text-slate-700">{s.total}</td>
-                         <td className="border border-slate-300 p-1 text-slate-700 border-r-0">{s.result}</td>
-                       </tr>
-                    ))}
-                    {Array.from({length: 15}).map((_, i) => (
-                       <tr key={`empty-${i}`} className="h-[26px] bg-white">
-                         <td className="border border-slate-300 border-l-0"></td><td className="border border-slate-300"></td><td className="border border-slate-300"></td><td className="border border-slate-300"></td><td className="border border-slate-300"></td><td className="border border-slate-300"></td><td className="border border-slate-300 border-r-0"></td>
-                       </tr>
+                    {loading ? (
+                      <tr><td colSpan={13} className="text-center py-4 font-bold text-slate-500">Loading Database...</td></tr>
+                    ) : students.length === 0 ? (
+                      <tr><td colSpan={13} className="text-center py-4 font-bold text-red-500 bg-red-50">No Students Found. Upload Excel data.</td></tr>
+                    ) : students.map((s, idx) => (
+                      <tr key={s.id} className="hover:bg-blue-50 bg-white">
+                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-800">{idx + 1}</td>
+                        <td className="border border-slate-300 p-1">
+                          <input type="checkbox" className="mx-auto block" />
+                        </td>
+                        <td className="border border-slate-300 p-1 text-center font-bold text-slate-800">{s.sr}</td>
+                        <td className="border border-slate-300 p-1 text-left pl-2 font-bold text-slate-800">{s.name}</td>
+                        <td className="border border-slate-300 p-1 text-left pl-2 font-semibold text-slate-700">{s.fname}</td>
+                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-700">{s.current_class || s.admit_class}</td>
+                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-700">-</td>
+                        <td className="border border-slate-300 p-1 text-center text-slate-700">{s.fcontact}</td>
+                        <td className="border border-slate-300 p-1 text-center font-semibold text-slate-700">2026-27</td>
+                        <td className="border border-slate-300 p-1 text-center font-bold text-green-700">Generated</td>
+                        <td className="border border-slate-300 p-1 bg-red-100 text-center font-bold text-red-700">-</td>
+                        <td className="border border-slate-300 p-1 bg-yellow-50 text-center">False</td>
+                        <td className="border border-slate-300 p-1 bg-yellow-50 text-center border-r-0">False</td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>

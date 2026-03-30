@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import * as xlsx from "xlsx"
+import { supabase } from "@/lib/supabase"
 
 export default function DataUpload() {
   const [file, setFile] = useState<File | null>(null)
@@ -41,13 +42,53 @@ export default function DataUpload() {
     setIsUploading(true)
     setStatus("Uploading to Supabase Production Database...")
     
-    // In production, this block loops the massive JSON array to Supabase
-    // const { error } = await supabase.from('students').insert(parsedData mapped to snake_case column variables)
-    
-    setTimeout(() => {
-        setIsUploading(false)
-        setStatus("✅ Mass Upload Complete! Run 'schema.sql' in your Supabase Dashboard first if the data did not visually save.")
-    }, 2000)
+    try {
+      const payload = parsedData.map(row => ({
+        sn: row["SN"] || null,
+        sr: String(row["SR"] || ""),
+        name: row["Name"] || "Unknown Student",
+        fname: row["Fname"] || null,
+        mname: row["Mname"] || null,
+        fcontact: String(row["Fcontact"] || ""),
+        mcontact: String(row["Mcontact"] || ""),
+        phone_info: String(row["Phone Info"] || ""),
+        admit_class: String(row["AdmitteClass"] || ""),
+        gender: row["Gender"] || null,
+        caste: row["Caste"] || null,
+        address: row["Address"] || null,
+        reg_date: String(row["Reg Date"] || ""),
+        dob: String(row["DOB"] || ""),
+        blood_group: row["Blood Group"] || null,
+        fprof: String(row["FProf"] || ""),
+        mprof: String(row["MProf"] || ""),
+        email_address: row["Email Address"] || null,
+        last_school: row["Last School"] || null,
+        last_class: String(row["Last Class"] || ""),
+        religion: row["Religion"] || null,
+        dom: String(row["DOM"] || ""),
+        guardian: row["Guardian"] || null,
+        current_class: String(row["Current Class"] || ""),
+        transport: row["Transport"] || null,
+        tc: String(row["TC"] || "")
+      }))
+
+      // Batch insert 500 rows at a time just to be safe
+      const chunkSize = 500
+      for (let i = 0; i < payload.length; i += chunkSize) {
+         const chunk = payload.slice(i, i + chunkSize)
+         const { error } = await supabase.from('students').insert(chunk)
+         if (error) {
+            console.error(error)
+            throw new Error(error.message)
+         }
+      }
+      
+      setStatus(`✅ Mass Upload Complete! Successfully committed ${payload.length} rows to database!`)
+    } catch (error: any) {
+      setStatus(`❌ Upload Failed: ${error.message}`)
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   return (

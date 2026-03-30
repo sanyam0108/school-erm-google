@@ -1,17 +1,26 @@
 "use client"
 
-import { useState } from "react"
-
-const mockStudents = [
-  { sno: 1, id: "1820", sr: "1820", name: "SHUBHOJIT SARKAR", fname: "JAY KRISHNA SARKAR", fcontact: "8888888888", mcontact: "8888888888", contactNo: "8058601122", cls: "VII", sec: "A", dob: "21/09/2012", reg: "08/04/2016" },
-  { sno: 2, id: "1940", sr: "1940", name: "VANSHIKA GUPTA", fname: "VIMAL MAHAWAR", fcontact: "8888888888", mcontact: "8888888888", contactNo: "9352411115", cls: "VII", sec: "A", dob: "07/02/2013", reg: "20/07/2016" },
-  { sno: 3, id: "2129", sr: "2129", name: "LAVISHA MALHOTRA", fname: "LUCKY", fcontact: "8888888888", mcontact: "8888888888", contactNo: "9887760757", cls: "VII", sec: "A", dob: "05/02/2014", reg: "05/07/2017" },
-  { sno: 4, id: "2253", sr: "2253", name: "MOHIT", fname: "SUBHASH CHAND MEENA", fcontact: "", mcontact: "", contactNo: "8413951066", cls: "VII", sec: "A", dob: "21/04/2013", reg: "30/04/2018" },
-  { sno: 5, id: "2331", sr: "2331", name: "ANSH KUMAR MEENA", fname: "MOHAN MURARI MEENA", fcontact: "", mcontact: "", contactNo: "9413991835", cls: "VII", sec: "A", dob: "08/09/2012", reg: "05/07/2018" },
-]
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function StudentReportPage() {
-  const [data] = useState(mockStudents)
+  const [data, setData] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data: students, error } = await supabase
+        .from('students')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (!error && students) {
+        setData(students)
+      }
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
 
   return (
     <div className="bg-[#f0f0f0] min-h-[700px] flex flex-col mx-auto text-[11px] font-sans border shadow-xl relative mt-0">
@@ -149,20 +158,24 @@ export default function StudentReportPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {data.map((s, idx) => (
+                        {loading ? (
+                           <tr><td colSpan={12} className="text-center p-4 font-bold text-slate-500">Loading Databse Records...</td></tr>
+                        ) : data.length === 0 ? (
+                           <tr><td colSpan={12} className="text-center p-4 font-bold text-red-500 bg-red-50">No Student Records Found. Ensure Excel Upload is complete.</td></tr>
+                        ) : data.map((s, idx) => (
                            <tr key={s.id} className="hover:bg-blue-50/50 bg-white">
-                             <td className="border border-slate-400 p-1 border-l-0 font-semibold">{s.sno}</td>
-                             <td className="border border-slate-400 p-1 text-slate-700">{s.id}</td>
-                             <td className="border border-slate-400 p-1 text-slate-700">{s.sr}</td>
+                             <td className="border border-slate-400 p-1 border-l-0 font-semibold">{idx + 1}</td>
+                             <td className="border border-slate-400 p-1 text-slate-700">{s.id.substring(0,6)}</td>
+                             <td className="border border-slate-400 p-1 text-slate-700 font-bold">{s.sr}</td>
                              <td className="border border-slate-400 p-1 text-left pl-2 font-bold text-slate-800">{s.name}</td>
                              <td className="border border-slate-400 p-1 text-left pl-2 font-semibold text-slate-700">{s.fname}</td>
                              <td className="border border-slate-400 p-1 text-slate-700">{s.fcontact}</td>
                              <td className="border border-slate-400 p-1 text-slate-700">{s.mcontact}</td>
-                             <td className="border border-slate-400 p-1 font-semibold">{s.contactNo}</td>
-                             <td className="border border-slate-400 p-1 font-semibold">{s.cls}</td>
-                             <td className="border border-slate-400 p-1 font-semibold">{s.sec}</td>
+                             <td className="border border-slate-400 p-1 font-semibold">{s.phone_info}</td>
+                             <td className="border border-slate-400 p-1 font-semibold">{s.current_class || s.admit_class}</td>
+                             <td className="border border-slate-400 p-1 font-semibold text-slate-500">-</td>
                              <td className="border border-slate-400 p-1 text-slate-700">{s.dob}</td>
-                             <td className="border border-slate-400 p-1 text-slate-700 border-r-0">{s.reg}</td>
+                             <td className="border border-slate-400 p-1 text-slate-700 border-r-0">{s.reg_date}</td>
                            </tr>
                         ))}
                         {Array.from({length: 12}).map((_, i) => (
