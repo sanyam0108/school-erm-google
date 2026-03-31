@@ -1,15 +1,32 @@
 "use client"
 
-import { useState } from "react"
-
-const mockStudents = [
-  { regNo: "4177", name: "AAFIYA KHAN", fName: "SAHID KHAN", phone: "7665443809", transport: "Yes", discount: "No", rte: "No" },
-  { regNo: "5524", name: "ABDUL AHAD", fName: "IMRAN", phone: "9999721436", transport: "No", discount: "No", rte: "No" },
-  { regNo: "4982", name: "ABHISHEK MEENA", fName: "MANOJ MEENA", phone: "7891380260", transport: "Yes", discount: "No", rte: "No" },
-  { regNo: "5585", name: "ALFEJ KHAN", fName: "ASPAK KHAN", phone: "7690815151", transport: "No", discount: "No", rte: "No" },
-]
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function PromoteStudentClassPage() {
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: false })
+      if (!error && data) {
+         const formatted = data.map(s => ({
+            regNo: s.sr || String(s.id).substring(0,4),
+            name: s.name || 'Unknown',
+            fName: s.fname || '-',
+            phone: s.phone_info || s.fcontact || '-',
+            transport: "No",
+            discount: "No",
+            rte: "No"
+         }))
+         setStudents(formatted)
+      }
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
   const [selectedIds, setSelectedIds] = useState<string[]>(["4177"])
   const [selectAll, setSelectAll] = useState(false)
 
@@ -107,7 +124,11 @@ export default function PromoteStudentClassPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockStudents.map((s) => (
+                  {loading ? (
+                     <tr><td colSpan={9} className="text-center py-4 font-bold text-slate-500">Loading Database...</td></tr>
+                  ) : students.length === 0 ? (
+                     <tr><td colSpan={9} className="text-center py-4 font-bold text-red-500 bg-red-50">No Students Found.</td></tr>
+                  ) : students.map((s) => (
                     <tr key={s.regNo} className="border-b border-slate-300 hover:bg-blue-50">
                       <td className={`p-1 text-center border-r border-slate-300 h-6 ${selectedIds.includes(s.regNo) ? 'bg-[#3b82f6]' : 'bg-white'}`}>
                          <input 

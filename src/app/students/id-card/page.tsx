@@ -1,17 +1,30 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-
-const mockStudents = [
-  { regNo: "1318", name: "BHAGAT SINGH", fName: "RAJEEV KUMAR" },
-  { regNo: "1382", name: "JABA SARKAR", fName: "JOY KRISHNA SARKAR" },
-  { regNo: "1443", name: "ANKIT", fName: "JAGRAM" },
-  { regNo: "2255", name: "MANPREET KAUR", fName: "PARMEET SINGH" },
-  { regNo: "3587", name: "SOHAM ISRODIYA", fName: "MAHENDRA KUMAR SAHU" },
-]
+import { supabase } from "@/lib/supabase"
 
 export default function PrintIDCardPage() {
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: false })
+      if (!error && data) {
+         const formatted = data.map(s => ({
+            regNo: s.sr || String(s.id).substring(0,4),
+            name: s.name || 'Unknown',
+            fName: s.fname || '-'
+         }))
+         setStudents(formatted)
+         if (formatted.length > 0) setSelectedIds([formatted[0].regNo])
+      }
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
   const [selectedIds, setSelectedIds] = useState<string[]>(["1318"])
 
   const handleSelect = (regNo: string) => {
@@ -100,7 +113,11 @@ export default function PrintIDCardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockStudents.map((s) => (
+                  {loading ? (
+                     <tr><td colSpan={4} className="text-center py-4 font-bold text-slate-500">Loading Database...</td></tr>
+                  ) : students.length === 0 ? (
+                     <tr><td colSpan={4} className="text-center py-4 font-bold text-red-500 bg-red-50">No Students Found.</td></tr>
+                  ) : students.map((s) => (
                     <tr key={s.regNo} className="border-b border-slate-300 hover:bg-blue-50">
                       <td className={`p-1 text-center border-r border-slate-300 h-6 ${selectedIds.includes(s.regNo) ? 'bg-[#3b82f6]' : 'bg-white'}`}>
                          <input 

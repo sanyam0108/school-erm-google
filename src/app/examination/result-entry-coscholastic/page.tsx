@@ -1,22 +1,29 @@
 "use client"
 
-import { useState } from "react"
-
-const mockStudents = [
-  { reg: "3576", name: "DEVISH KUMAR", grade: "A+" },
-  { reg: "3722", name: "AYUSH KUMAR MEENA", grade: "A+" },
-  { reg: "4130", name: "MOHAMMAD MAAZ", grade: "A+" },
-  { reg: "4177", name: "AAFIYA KHAN", grade: "A+" },
-  { reg: "4180", name: "ARSALAN KHAN", grade: "A+" },
-  { reg: "4187", name: "YUVILKSHA YADAV", grade: "A+" },
-  { reg: "4366", name: "IRAM", grade: "A+" },
-  { reg: "4368", name: "JIYANSH", grade: "A+" },
-  { reg: "4556", name: "STEEPHEN", grade: "A+" },
-  { reg: "4557", name: "HARSH MEENA", grade: "A+" },
-  { reg: "4639", name: "ANAM BANO", grade: "A+" },
-]
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function CoScholasticResultEntry() {
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: false })
+      if (!error && data) {
+         const formatted = data.map(s => ({
+            reg: s.sr || String(s.id).substring(0,4),
+            name: s.name || 'Unknown',
+            grade: "A+"
+         }))
+         setStudents(formatted)
+         if (formatted.length > 0) setSelectedReg(formatted[0].reg)
+      }
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
   const [selectedReg, setSelectedReg] = useState<string>("3576")
   
   return (
@@ -97,9 +104,13 @@ export default function CoScholasticResultEntry() {
                    <th className="font-bold border border-slate-300 p-1 text-slate-700 border-t-0 border-r-0">Grade</th>
                  </tr>
                </thead>
-               <tbody>
-                 {mockStudents.map((s) => (
-                    <tr key={s.reg} className={`hover:bg-blue-50/80 cursor-pointer ${selectedReg === s.reg ? 'bg-[#3b82f6] text-white font-bold shadow-[inset_0_1px_4px_rgba(0,0,0,0.1)]' : 'bg-white'}`} onClick={() => setSelectedReg(s.reg)}>
+                <tbody>
+                  {loading ? (
+                     <tr><td colSpan={3} className="text-center py-4 font-bold text-slate-500">Loading Database...</td></tr>
+                  ) : students.length === 0 ? (
+                     <tr><td colSpan={3} className="text-center py-4 font-bold text-red-500 bg-red-50">No Students Found.</td></tr>
+                  ) : students.map((s) => (
+                     <tr key={s.reg} className={`hover:bg-blue-50/80 cursor-pointer ${selectedReg === s.reg ? 'bg-[#3b82f6] text-white font-bold shadow-[inset_0_1px_4px_rgba(0,0,0,0.1)]' : 'bg-white'}`} onClick={() => setSelectedReg(s.reg)}>
                       <td className="border border-slate-300 p-1 px-2 border-l-0 w-[160px] h-[22px]">
                          {s.reg}
                       </td>

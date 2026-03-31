@@ -1,23 +1,39 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-
-const mockStudents = [
-  { id: 1, srNo: "1109", name: "KAPIL RAMWANI", class: "XII", section: "Science", status: "Current Student" },
-  { id: 2, srNo: "1110", name: "ANJALI SHARMA", class: "X", section: "A", status: "New Student" },
-  { id: 3, srNo: "1002", name: "ROHIT VERMA", class: "Ex", section: "-", status: "Ex Student / Alumni" },
-  { id: 4, srNo: "1115", name: "PRIYA GUPTA", class: "V", section: "B", status: "Current Student" },
-]
+import { supabase } from "@/lib/supabase"
 
 export default function StudentDirectory() {
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: false })
+      if (!error && data) {
+         const formatted = data.map(s => ({
+            id: s.id,
+            srNo: s.sr || String(s.id).substring(0,4),
+            name: s.name || 'Unknown',
+            class: s.current_class || s.admit_class || '-',
+            section: "-",
+            status: "Current Student"
+         }))
+         setStudents(formatted)
+      }
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
   const [filter, setFilter] = useState("All")
   const [search, setSearch] = useState("")
 
-  const filteredStudents = mockStudents.filter(student => {
+  const filteredStudents = students.filter(student => {
     const matchesFilter = filter === "All" || student.status === filter;
     const matchesSearch = student.name.toLowerCase().includes(search.toLowerCase()) || 
-                          student.srNo.includes(search);
+                          student.srNo.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -77,7 +93,11 @@ export default function StudentDirectory() {
             </tr>
           </thead>
           <tbody>
-            {filteredStudents.length > 0 ? filteredStudents.map((s, i) => (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center p-8 text-slate-500 font-bold">Loading Database...</td>
+              </tr>
+            ) : filteredStudents.length > 0 ? filteredStudents.map((s, i) => (
               <tr key={s.id} className={`border-b border-slate-200 hover:bg-yellow-50 ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50'}`}>
                 <td className="p-2 text-center border-r font-medium border-slate-200">{s.srNo}</td>
                 <td className="p-2 font-bold text-[#000080] border-r border-slate-200">{s.name}</td>
@@ -98,7 +118,7 @@ export default function StudentDirectory() {
               </tr>
             )) : (
               <tr>
-                <td colSpan={6} className="text-center p-8 text-slate-500 font-medium italic">
+                <td colSpan={6} className="text-center p-8 text-red-500 font-bold bg-red-50">
                   No students found matching filters.
                 </td>
               </tr>
@@ -109,7 +129,7 @@ export default function StudentDirectory() {
       
       {/* Footer Meta */}
       <div className="bg-[#f5f5f5] p-2 border-t text-[11px] text-slate-500 font-medium flex justify-between">
-        <span>Showing {filteredStudents.length} of {mockStudents.length} entries.</span>
+        <span>Showing {filteredStudents.length} of {students.length} entries.</span>
       </div>
     </div>
   )

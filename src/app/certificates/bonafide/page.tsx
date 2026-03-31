@@ -1,17 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-
-const mockStudents = [
-  { regNo: "3576", name: "DEVISH KUMAR", fName: "MAHESH CHAND BAIRWA", phone: "8000446200" },
-  { regNo: "3722", name: "AYUSH KUMAR MEENA", fName: "LAL SINGH", phone: "9682541995" },
-  { regNo: "4130", name: "MOHAMMAD MAAZ", fName: "ALEEM HUSAIN", phone: "8769250333" },
-  { regNo: "4177", name: "AAFIYA KHAN", fName: "SAHID KHAN", phone: "7665443809" },
-  { regNo: "4180", name: "ARSALAN KHAN", fName: "SHABBEER KHAN", phone: "8302936892" },
-]
+import { supabase } from "@/lib/supabase"
 
 export default function BonafideCertificateGenerator() {
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: false })
+      if (!error && data) {
+         const formatted = data.map(s => ({
+            regNo: s.sr || String(s.id).substring(0,4),
+            name: s.name || 'Unknown',
+            fName: s.fname || '-',
+            phone: s.phone_info || s.fcontact || '-'
+         }))
+         setStudents(formatted)
+         if (formatted.length > 0) setSelectedReg(formatted[0].regNo)
+      }
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
   const [selectedReg, setSelectedReg] = useState<string>("3576")
   const [purpose, setPurpose] = useState("SELF")
   const [session, setSession] = useState("2026-27")
@@ -81,7 +95,11 @@ export default function BonafideCertificateGenerator() {
             </tr>
           </thead>
           <tbody>
-            {mockStudents.map((s, i) => (
+            {loading ? (
+               <tr><td colSpan={5} className="text-center py-4 font-bold text-slate-500">Loading Database...</td></tr>
+            ) : students.length === 0 ? (
+               <tr><td colSpan={5} className="text-center py-4 font-bold text-red-500 bg-red-50">No Students Found.</td></tr>
+            ) : students.map((s, i) => (
               <tr key={s.regNo} className={`border-b border-slate-200 hover:bg-blue-50 cursor-pointer ${selectedReg === s.regNo ? 'bg-blue-50' : ''}`} onClick={() => setSelectedReg(s.regNo)}>
                 <td className="p-1.5 text-center border-r">
                    <input type="checkbox" checked={selectedReg === s.regNo} readOnly className="cursor-pointer" />

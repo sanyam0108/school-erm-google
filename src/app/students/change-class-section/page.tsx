@@ -1,14 +1,31 @@
 "use client"
 
-import { useState } from "react"
-
-const mockStudents = [
-  { regNo: "5223", name: "SHOURYA YADAV", fName: "SHIVPOOJAN", class: "I", section: "A", phone: "7830248117" },
-  { regNo: "4857", name: "SHOURYADEEP YADAV", fName: "RAJESH YADAV", class: "XI", section: "A", phone: "7014487394" },
-  { regNo: "5542", name: "SHOURYA SHARMA", fName: "LOKESH SHARMA", class: "XI", section: "C", phone: "9784835491" },
-]
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function ChangeClassSectionPage() {
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudents() {
+      const { data, error } = await supabase.from('students').select('*').order('created_at', { ascending: false })
+      if (!error && data) {
+         const formatted = data.map(s => ({
+            regNo: s.sr || String(s.id).substring(0,4),
+            name: s.name || 'Unknown',
+            fName: s.fname || '-',
+            class: s.current_class || s.admit_class || '-',
+            section: "-",
+            phone: s.phone_info || s.fcontact || '-'
+         }))
+         setStudents(formatted)
+      }
+      setLoading(false)
+    }
+    fetchStudents()
+  }, [])
+
   const [selectedIds, setSelectedIds] = useState<string[]>(["5223"])
   const [searchTerm, setSearchTerm] = useState("SHOUR")
 
@@ -98,7 +115,11 @@ export default function ChangeClassSectionPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {mockStudents.map((s) => (
+                  {loading ? (
+                     <tr><td colSpan={7} className="text-center py-4 font-bold text-slate-500">Loading Database...</td></tr>
+                  ) : students.length === 0 ? (
+                     <tr><td colSpan={7} className="text-center py-4 font-bold text-red-500 bg-red-50">No Students Found.</td></tr>
+                  ) : students.map((s) => (
                     <tr key={s.regNo} className="border-b border-slate-300 hover:bg-blue-50">
                       <td className={`p-1 text-center border-r border-slate-300 h-6 ${selectedIds.includes(s.regNo) ? 'bg-[#3b82f6]' : 'bg-white'}`}>
                          <input 
