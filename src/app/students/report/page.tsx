@@ -7,6 +7,7 @@ export default function StudentReportPage() {
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedClasses, setSelectedClasses] = useState<string[]>([])
+  const [appliedClasses, setAppliedClasses] = useState<string[]>([])
 
   useEffect(() => {
     async function fetchStudents() {
@@ -147,8 +148,20 @@ export default function StudentReportPage() {
              <label className="flex items-center gap-1 font-semibold text-slate-800 mb-2"><input type="radio" name="studentType" /> This Session Admitted Students</label>
 
              <div className="flex gap-2 w-full mt-auto pb-4">
-                 <button className="bg-black text-white font-bold h-8 flex-1 shadow hover:bg-slate-800 w-1/2 rounded-none border border-slate-600 tracking-wider">SHOW</button>
-                 <button className="bg-black text-white font-bold h-8 flex-1 shadow hover:bg-slate-800 w-1/2 rounded-none border border-slate-600 tracking-wider">EXIT</button>
+                 <button 
+                   onClick={() => {
+                      if (selectedClasses.length === 0) {
+                         alert("Please select at least one class to generate the report.")
+                         return
+                      }
+                      setAppliedClasses([...selectedClasses])
+                   }}
+                   className="bg-black text-white font-bold h-8 flex-1 shadow hover:bg-slate-800 w-1/2 rounded-none border border-slate-600 tracking-wider">
+                     SHOW
+                 </button>
+                 <button onClick={() => setAppliedClasses([])} className="bg-black text-white font-bold h-8 flex-1 shadow hover:bg-slate-800 w-1/2 rounded-none border border-slate-600 tracking-wider">
+                     CLEAR
+                 </button>
              </div>
 
           </div>
@@ -161,7 +174,7 @@ export default function StudentReportPage() {
                 <h2 className="text-center font-bold text-[#800080] text-[16px] py-4">Student Report</h2>
                 <div className="px-4 py-2 text-[10px] font-bold text-slate-800 flex flex-col gap-2">
                    <span>Session :2025-26 ; Gender : All ; Caste : All ; Transport : All ; Discount : All ; Religion : All</span>
-                   <span className="text-[12px]">Total Records: {selectedClasses.length > 0 ? data.filter(s => selectedClasses.includes(s.admit_class) || selectedClasses.includes(s.current_class)).length : data.length}</span>
+                   <span className="text-[12px]">Total Records: {appliedClasses.length > 0 ? data.filter(s => appliedClasses.includes(s.admit_class) || appliedClasses.includes(s.current_class)).length : 0}</span>
                 </div>
              </div>
 
@@ -188,9 +201,11 @@ export default function StudentReportPage() {
                       <tbody>
                         {loading ? (
                            <tr><td colSpan={12} className="text-center p-4 font-bold text-slate-500">Loading Databse Records...</td></tr>
+                        ) : appliedClasses.length === 0 ? (
+                           <tr><td colSpan={12} className="text-center p-4 font-bold text-blue-700 bg-blue-50">Please select classes from the left and press SHOW to generate the report.</td></tr>
                         ) : data.length === 0 ? (
                            <tr><td colSpan={12} className="text-center p-4 font-bold text-red-500 bg-red-50">No Student Records Found. Ensure Excel Upload is complete.</td></tr>
-                        ) : (selectedClasses.length > 0 ? data.filter(s => selectedClasses.includes(s.admit_class) || selectedClasses.includes(s.current_class)) : data).map((s, idx) => (
+                        ) : data.filter(s => appliedClasses.includes(s.admit_class) || appliedClasses.includes(s.current_class)).map((s, idx) => (
                            <tr key={s.id} className="hover:bg-blue-50/50 bg-white">
                              <td className="border border-slate-400 p-1 border-l-0 font-semibold">{s.sn || idx + 1}</td>
                              <td className="border border-slate-400 p-1 text-slate-700">{s.id ? String(s.id).substring(0,6) : "N/A"}</td>

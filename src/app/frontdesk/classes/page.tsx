@@ -3,20 +3,20 @@
 import { useState } from "react"
 
 const mockClasses = [
-  { code: 1, class: "Nursery", section: "A", priority: 0 },
-  { code: 2, class: "LKG", section: "A", priority: 0 },
-  { code: 3, class: "UKG", section: "A", priority: 0 },
-  { code: 7, class: "I", section: "A", priority: 0 },
-  { code: 8, class: "II", section: "A", priority: 0 },
-  { code: 9, class: "III", section: "A", priority: 0 },
-  { code: 10, class: "IV", section: "A", priority: 0 },
-  { code: 11, class: "V", section: "A", priority: 0 },
-  { code: 12, class: "VI", section: "A", priority: 0 },
-  { code: 13, class: "VII", section: "A", priority: 0 },
-  { code: 14, class: "VIII", section: "A", priority: 0 },
-  { code: 15, class: "IX", section: "A", priority: 0 },
-  { code: 16, class: "IX", section: "B", priority: 0 },
-  { code: 17, class: "X", section: "A", priority: 0 },
+  { code: 1, class: "Nursery", section: "A" },
+  { code: 2, class: "LKG", section: "A" },
+  { code: 3, class: "UKG", section: "A" },
+  { code: 7, class: "I", section: "A" },
+  { code: 8, class: "II", section: "A" },
+  { code: 9, class: "III", section: "A" },
+  { code: 10, class: "IV", section: "A" },
+  { code: 11, class: "V", section: "A" },
+  { code: 12, class: "VI", section: "A" },
+  { code: 13, class: "VII", section: "A" },
+  { code: 14, class: "VIII", section: "A" },
+  { code: 15, class: "IX", section: "A" },
+  { code: 16, class: "IX", section: "B" },
+  { code: 17, class: "X", section: "A" },
 ]
 
 export default function AddClasses() {
@@ -86,8 +86,7 @@ export default function AddClasses() {
               <th className="font-semibold p-1.5 w-12 text-center border-r">Select</th>
               <th className="font-semibold p-1.5 w-24 border-r text-slate-700">Code</th>
               <th className="font-semibold p-1.5 border-r text-slate-700">Class</th>
-              <th className="font-semibold p-1.5 w-64 border-r text-slate-700">Section</th>
-              <th className="font-semibold p-1.5 w-64 text-slate-700">priority</th>
+              <th className="font-semibold p-1.5 text-slate-700">Section</th>
             </tr>
           </thead>
           <tbody>
@@ -103,14 +102,13 @@ export default function AddClasses() {
                 </td>
                 <td className="p-1.5 border-r text-slate-800 select-all">{c.code}</td>
                 <td className="p-1.5 border-r text-slate-800 font-bold">{c.class}</td>
-                <td className="p-1.5 border-r text-slate-800">{c.section}</td>
-                <td className="p-1.5 text-slate-800">{c.priority}</td>
+                <td className="p-1.5 text-slate-800">{c.section}</td>
               </tr>
             ))}
             {/* Fill remaining space */}
             {Array.from({length: 8}).map((_, i) => (
                <tr key={`empty-${i}`} className="border-b h-[27px]">
-                  <td className="border-r"></td><td className="border-r"></td><td className="border-r"></td><td className="border-r"></td><td></td>
+                  <td className="border-r"></td><td className="border-r"></td><td className="border-r"></td><td></td>
                </tr>
             ))}
           </tbody>

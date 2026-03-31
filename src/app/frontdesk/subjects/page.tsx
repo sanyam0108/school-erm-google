@@ -20,8 +20,11 @@ const mockSubjects = [
 ]
 
 export default function AddSubjects() {
+  const [subjects, setSubjects] = useState(mockSubjects)
   const [selectAll, setSelectAll] = useState(false)
   const [selectedIds, setSelectedIds] = useState<number[]>([1])
+  const [inputSubject, setInputSubject] = useState("")
+
 
   const toggleSelectAll = () => {
     if (selectAll) {
@@ -32,11 +35,37 @@ export default function AddSubjects() {
     setSelectAll(!selectAll)
   }
 
-  const toggleSelect = (code: number) => {
+  const toggleSelect = (code: number, subjectName: string) => {
     if (selectedIds.includes(code)) {
       setSelectedIds(selectedIds.filter(id => id !== code))
+      setInputSubject("")
     } else {
-      setSelectedIds([...selectedIds, code])
+      setSelectedIds([code]) // Select single row for editing
+      setInputSubject(subjectName)
+    }
+  }
+
+  const handleAdd = () => {
+    if (!inputSubject.trim()) return
+    const newId = subjects.length > 0 ? Math.max(...subjects.map(s => s.code)) + 1 : 1
+    const p = subjects.length > 0 ? Math.max(...subjects.map(s => s.priority)) + 1 : 1
+    setSubjects([...subjects, { code: newId, subject: inputSubject.trim().toUpperCase(), priority: p }])
+    setInputSubject("")
+  }
+
+  const handleUpdate = () => {
+    if (selectedIds.length !== 1 || !inputSubject.trim()) return
+    setSubjects(subjects.map(s => 
+      s.code === selectedIds[0] ? { ...s, subject: inputSubject.trim().toUpperCase() } : s
+    ))
+  }
+
+  const handleDelete = () => {
+    if (selectedIds.length === 0) return
+    if (window.confirm("Delete selected subjects?")) {
+      setSubjects(subjects.filter(s => !selectedIds.includes(s.code)))
+      setSelectedIds([])
+      setInputSubject("")
     }
   }
 
@@ -47,10 +76,15 @@ export default function AddSubjects() {
       <div className="bg-white p-2 border-b flex flex-wrap gap-4 items-center shrink-0">
          <div className="flex items-center gap-2">
             <span className="font-semibold text-slate-700">Input Subject</span>
-            <input type="text" className="border border-slate-300 rounded px-1 h-6 w-48" />
+            <input 
+              type="text" 
+              value={inputSubject}
+              onChange={(e) => setInputSubject(e.target.value)}
+              className="border border-slate-300 rounded px-1 h-6 w-48 font-bold text-slate-800" 
+            />
          </div>
 
-         <button className="border border-slate-400 bg-slate-50 text-slate-800 font-bold px-4 h-6 hover:bg-slate-100 shadow-[inset_0px_1px_0px_0px_white]">Add</button>
+         <button onClick={handleAdd} className="border border-slate-400 bg-slate-50 text-slate-800 font-bold px-4 h-6 hover:bg-slate-100 shadow-[inset_0px_1px_0px_0px_white]">Add</button>
 
          <div className="flex-1" />
 
@@ -77,8 +111,8 @@ export default function AddSubjects() {
             </tr>
           </thead>
           <tbody>
-            {mockSubjects.map((s) => (
-              <tr key={s.code} className={`border-b border-slate-200 hover:bg-blue-50 cursor-pointer ${selectedIds.includes(s.code) ? 'bg-blue-50' : ''}`} onClick={() => toggleSelect(s.code)}>
+            {subjects.map((s) => (
+              <tr key={s.code} className={`border-b border-slate-200 hover:bg-blue-50 cursor-pointer ${selectedIds.includes(s.code) ? 'bg-blue-50' : ''}`} onClick={() => toggleSelect(s.code, s.subject)}>
                 <td className={`p-1.5 text-center border-r h-6 ${selectedIds.includes(s.code) ? 'bg-[#3b82f6]' : 'bg-white'}`}>
                    <input 
                      type="checkbox" 
@@ -87,7 +121,7 @@ export default function AddSubjects() {
                      className="pointer-events-none"
                    />
                 </td>
-                <td className="p-1.5 border-r text-slate-800">{s.code}</td>
+                <td className="p-1.5 border-r text-slate-800 font-bold">{s.code}</td>
                 <td className="p-1.5 border-r text-[#000080] font-bold uppercase">{s.subject}</td>
                 <td className="p-1.5 text-slate-800">{s.priority}</td>
               </tr>
@@ -104,8 +138,8 @@ export default function AddSubjects() {
 
       {/* Footer Action Bar */}
       <div className="bg-white p-2 border-t flex gap-2">
-         <button className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">UPDATE</button>
-         <button className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">DELETE</button>
+         <button onClick={handleUpdate} className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">UPDATE</button>
+         <button onClick={handleDelete} className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">DELETE</button>
          <button className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">EXIT</button>
       </div>
 
