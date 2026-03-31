@@ -8,6 +8,8 @@ export default function StudentReportPage() {
   const [loading, setLoading] = useState(true)
   const [selectedClasses, setSelectedClasses] = useState<string[]>([])
   const [appliedClasses, setAppliedClasses] = useState<string[]>([])
+  const [availableClasses, setAvailableClasses] = useState<string[]>([])
+  const [selectAllMode, setSelectAllMode] = useState(false)
 
   useEffect(() => {
     async function fetchStudents() {
@@ -18,6 +20,8 @@ export default function StudentReportPage() {
       
       if (!error && students) {
         setData(students)
+        const uClasses = Array.from(new Set(students.map(s => s.current_class || s.admit_class).filter(Boolean))) as string[]
+        setAvailableClasses(uClasses.sort())
       }
       setLoading(false)
     }
@@ -59,8 +63,9 @@ export default function StudentReportPage() {
                 <div className="flex flex-col gap-2 w-full">
                   <label className="flex items-center gap-1 font-semibold text-slate-600 text-[10px]">
                      <input type="checkbox" onChange={(e) => {
+                        setSelectAllMode(e.target.checked)
                         if (e.target.checked) setSelectedClasses([])
-                     }} checked={selectedClasses.length === 0} /> All Classes
+                     }} checked={selectAllMode} /> All Classes
                   </label>
                   <select 
                      multiple 
@@ -68,28 +73,12 @@ export default function StudentReportPage() {
                      onChange={(e) => {
                         const values = Array.from(e.target.selectedOptions, option => option.value);
                         setSelectedClasses(values);
+                        if (values.length > 0) setSelectAllMode(false)
                      }}
-                     className="border border-slate-300 w-full h-32 p-1 text-[11px] font-semibold text-slate-700 bg-white"
+                     className="border border-slate-300 w-full h-32 p-1 text-[11px] font-semibold text-slate-700 bg-white shadow-inner"
                   >
-                     <option value="Nursery">NURSERY</option>
-                     <option value="LKG-A">LKG</option>
-                     <option value="UKG-A">UKG</option>
-                     <option value="I-A">I-A</option>
-                     <option value="II-A">II</option>
-                     <option value="III-A">III</option>
-                     <option value="IV-A">IV</option>
-                     <option value="V-A">V-A</option>
-                     <option value="V-B">V-B</option>
-                     <option value="VI-A">VI-A</option>
-                     <option value="VI-B">VI-B</option>
-                     <option value="VII-A">VII-A</option>
-                     <option value="VII-B">VII-B</option>
-                     <option value="VIII-A">VIII-A</option>
-                     <option value="VIII-B">VIII-B</option>
-                     <option value="IX-A">IX-A</option>
-                     <option value="IX-B">IX-B</option>
-                     <option value="XI">XI</option>
-                     <option value="XII">XII</option>
+                     {availableClasses.map(c => <option key={c} value={c}>{c}</option>)}
+                     {availableClasses.length === 0 && <option disabled>Loading classes...</option>}
                   </select>
                 </div>
              </div>
@@ -150,11 +139,11 @@ export default function StudentReportPage() {
              <div className="flex gap-2 w-full mt-auto pb-4">
                  <button 
                    onClick={() => {
-                      if (selectedClasses.length === 0) {
-                         alert("Please select at least one class to generate the report.")
+                      if (!selectAllMode && selectedClasses.length === 0) {
+                         alert("Please select at least one class from the list, or explicitly check 'All Classes' to load everything.")
                          return
                       }
-                      setAppliedClasses([...selectedClasses])
+                      setAppliedClasses(selectAllMode ? ['ALL_WILDCARD'] : [...selectedClasses])
                    }}
                    className="bg-black text-white font-bold h-8 flex-1 shadow hover:bg-slate-800 w-1/2 rounded-none border border-slate-600 tracking-wider">
                      SHOW
@@ -174,7 +163,13 @@ export default function StudentReportPage() {
                 <h2 className="text-center font-bold text-[#800080] text-[16px] py-4">Student Report</h2>
                 <div className="px-4 py-2 text-[10px] font-bold text-slate-800 flex flex-col gap-2">
                    <span>Session :2025-26 ; Gender : All ; Caste : All ; Transport : All ; Discount : All ; Religion : All</span>
-                   <span className="text-[12px]">Total Records: {appliedClasses.length > 0 ? data.filter(s => appliedClasses.includes(s.admit_class) || appliedClasses.includes(s.current_class)).length : 0}</span>
+                   <span className="text-[12px]">Total Records: {
+                      appliedClasses.includes('ALL_WILDCARD') 
+                         ? data.length 
+                         : appliedClasses.length > 0 
+                            ? data.filter(s => appliedClasses.includes(s.admit_class) || appliedClasses.includes(s.current_class)).length 
+                            : 0
+                   }</span>
                 </div>
              </div>
 
@@ -205,7 +200,7 @@ export default function StudentReportPage() {
                            <tr><td colSpan={12} className="text-center p-4 font-bold text-blue-700 bg-blue-50">Please select classes from the left and press SHOW to generate the report.</td></tr>
                         ) : data.length === 0 ? (
                            <tr><td colSpan={12} className="text-center p-4 font-bold text-red-500 bg-red-50">No Student Records Found. Ensure Excel Upload is complete.</td></tr>
-                        ) : data.filter(s => appliedClasses.includes(s.admit_class) || appliedClasses.includes(s.current_class)).map((s, idx) => (
+                        ) : (appliedClasses.includes('ALL_WILDCARD') ? data : data.filter(s => appliedClasses.includes(s.admit_class) || appliedClasses.includes(s.current_class))).map((s, idx) => (
                            <tr key={s.id} className="hover:bg-blue-50/50 bg-white">
                              <td className="border border-slate-400 p-1 border-l-0 font-semibold">{s.sn || idx + 1}</td>
                              <td className="border border-slate-400 p-1 text-slate-700">{s.id ? String(s.id).substring(0,6) : "N/A"}</td>

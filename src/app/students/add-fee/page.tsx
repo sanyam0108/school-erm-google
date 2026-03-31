@@ -12,17 +12,15 @@ export default function AddFeePage() {
   const [filterClass, setFilterClass] = useState("")
   const [searchName, setSearchName] = useState("")
 
-  const [selectedIds, setSelectedIds] = useState<number[]>([])
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   // Fee state
   const [totalDue, setTotalDue] = useState("")
   const [amountPaid, setAmountPaid] = useState("")
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  // Mock installation ledger for presentation logic
-  const [mockLedger, setMockLedger] = useState<{date: string, amount: number}[]>([
-     { date: "15-Apr-2026", amount: 1200 },
-     { date: "10-May-2026", amount: 800 }
-  ])
+  // Ledger state for Single Student
+  const [ledgerReciepts, setLedgerReciepts] = useState<any[]>([])
 
   useEffect(() => {
     async function fetchStudents() {
@@ -54,7 +52,7 @@ export default function AddFeePage() {
     }
   }
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (id: string) => {
     if (selectedIds.includes(id)) {
       setSelectedIds(selectedIds.filter(i => i !== id))
     } else {
@@ -64,22 +62,74 @@ export default function AddFeePage() {
 
   const singleStudent = selectedIds.length === 1 ? students.find(s => s.id === selectedIds[0]) : null
 
-  const handleSaveBulk = () => {
+  // Fetch Ledger when single student is selected
+  useEffect(() => {
+     if (selectedIds.length === 1 && singleStudent) {
+         setTotalDue("")
+         setAmountPaid("")
+         // Fetch due
+         supabase.from('student_fees').select('total_due').eq('student_id', singleStudent.id).single()
+         .then(({data}) => {
+             if (data) setTotalDue(String(data.total_due))
+         })
+         // Fetch payments
+         supabase.from('payments').select('*').eq('student_id', singleStudent.id).order('payment_date', { ascending: false })
+         .then(({data}) => {
+             if (data) setLedgerReciepts(data)
+             else setLedgerReciepts([])
+         })
+     } else {
+         setLedgerReciepts([])
+         setTotalDue("")
+         setAmountPaid("")
+     }
+  }, [selectedIds.length, singleStudent?.id])
+
+  const handleSaveBulk = async () => {
      if (!totalDue) return alert("Please enter a total due amount to assign.")
      if (window.confirm(`Assign a bulk due amount of Rs. ${totalDue} to ${selectedIds.length} students?`)) {
-        alert("Success! Bulk fee balances updated in ledger.")
-        setSelectedIds([])
-        setTotalDue("")
+        setIsProcessing(true)
+        const bulkData = selectedIds.map(id => ({ student_id: id, total_due: Number(totalDue) }))
+        const { error } = await supabase.from('student_fees').upsert(bulkData, { onConflict: 'student_id' })
+        
+        setIsProcessing(false)
+        if (error) {
+           alert("Error saving: Did you run the schema_update.sql script in Supabase first?")
+        } else {
+           alert("Success! Bulk fee balances updated in ledger.")
+           setSelectedIds([])
+           setTotalDue("")
+        }
      }
   }
 
-  const handleSaveSingle = () => {
+  const handleSaveSingle = async () => {
      if (!totalDue && !amountPaid) return alert("Please enter amount.")
-     alert(`Success! Updated ledger for ${singleStudent.name}.`)
-     if (amountPaid) {
-        setMockLedger([{date: new Date().toLocaleDateString('en-GB').replace(/\//g, '-'), amount: Number(amountPaid)}, ...mockLedger])
+     setIsProcessing(true)
+
+     let err = false;
+     if (totalDue) {
+         const { error } = await supabase.from('student_fees').upsert({ student_id: singleStudent.id, total_due: Number(totalDue) }, { onConflict: 'student_id' })
+         if (error) err = true;
      }
-     setAmountPaid("")
+     if (amountPaid && !err) {
+         const { error } = await supabase.from('payments').insert({ student_id: singleStudent.id, amount: Number(amountPaid) })
+         if (error) err = true;
+         else {
+             // reload payments
+             const p = await supabase.from('payments').select('*').eq('student_id', singleStudent.id).order('payment_date', { ascending: false })
+             if (p.data) setLedgerReciepts(p.data)
+         }
+     }
+
+     setIsProcessing(false)
+
+     if (err) {
+        alert("Database Error! Did you configure the SQL table correctly in Supabase?")
+     } else {
+        alert(`Success! Updated ledger for ${singleStudent.name}.`)
+        setAmountPaid("")
+     }
   }
 
   return (
@@ -174,8 +224,8 @@ export default function AddFeePage() {
                      />
                   </div>
 
-                  <button onClick={handleSaveBulk} className="bg-orange-600 text-white font-bold h-10 w-full hover:bg-orange-700 shadow text-[12px] tracking-wider">
-                     CONFIRM MASS ASSIGNMENT
+                  <button disabled={isProcessing} onClick={handleSaveBulk} className="bg-orange-600 text-white font-bold h-10 w-full hover:bg-orange-700 shadow text-[12px] tracking-wider disabled:opacity-50">
+                     {isProcessing ? "PROCESSING..." : "CONFIRM MASS ASSIGNMENT"}
                   </button>
                </div>
             )}
@@ -208,8 +258,8 @@ export default function AddFeePage() {
                      </div>
                   </div>
 
-                  <button onClick={handleSaveSingle} className="bg-green-600 text-white font-bold h-10 w-full hover:bg-green-700 shadow text-[12px] tracking-wider mb-6">
-                     UPDATE STUDENT LEDGER
+                  <button disabled={isProcessing} onClick={handleSaveSingle} className="bg-green-600 text-white font-bold h-10 w-full hover:bg-green-700 shadow text-[12px] tracking-wider mb-6 disabled:opacity-50">
+                     {isProcessing ? "UPDATING LEDGER..." : "UPDATE STUDENT LEDGER"}
                   </button>
 
                   <div className="border border-slate-200 rounded">
@@ -222,15 +272,22 @@ export default function AddFeePage() {
                            </tr>
                         </thead>
                         <tbody>
-                           {mockLedger.map((lg, i) => (
-                              <tr key={i} className="border-b">
-                                 <td className="p-2 border-r font-bold text-slate-700">{lg.date}</td>
+                           {ledgerReciepts.length === 0 && (
+                              <tr><td colSpan={2} className="text-center p-2 text-slate-400 font-semibold italic">No payments recorded.</td></tr>
+                           )}
+                           {ledgerReciepts.map((lg) => (
+                              <tr key={lg.id} className="border-b">
+                                 <td className="p-2 border-r font-bold text-slate-700">{lg.payment_date}</td>
                                  <td className="p-2 font-black text-green-600 text-right">+{lg.amount}</td>
                               </tr>
                            ))}
-                           <tr className="bg-slate-50">
+                           <tr className="bg-slate-50 border-t-2 border-slate-300">
                               <td className="p-2 border-r font-black text-slate-800 text-right">TOTAL PAID:</td>
-                              <td className="p-2 font-black text-slate-800 text-right">{mockLedger.reduce((a,b) => a + b.amount, 0)}</td>
+                              <td className="p-2 font-black text-slate-800 text-right">{ledgerReciepts.reduce((a,b) => a + Number(b.amount), 0)}</td>
+                           </tr>
+                           <tr className="bg-orange-50/50">
+                              <td className="p-2 border-r font-extrabold text-orange-900 text-right uppercase text-[10px]">Net Pending Balance:</td>
+                              <td className="p-2 font-black text-orange-600 text-right">{Number(totalDue || 0) - ledgerReciepts.reduce((a,b) => a + Number(b.amount), 0)}</td>
                            </tr>
                         </tbody>
                      </table>
