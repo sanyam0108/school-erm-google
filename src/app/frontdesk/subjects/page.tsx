@@ -69,6 +69,30 @@ export default function AddSubjects() {
     }
   }
 
+  const handleMoveUp = () => {
+    if (selectedIds.length !== 1) return;
+    const sorted = [...subjects].sort((a,b) => a.priority - b.priority);
+    const idx = sorted.findIndex(s => s.code === selectedIds[0]);
+    if (idx > 0) {
+      const temp = sorted[idx].priority;
+      sorted[idx].priority = sorted[idx - 1].priority;
+      sorted[idx - 1].priority = temp;
+      setSubjects([...sorted]);
+    }
+  }
+
+  const handleMoveDown = () => {
+    if (selectedIds.length !== 1) return;
+    const sorted = [...subjects].sort((a,b) => a.priority - b.priority);
+    const idx = sorted.findIndex(s => s.code === selectedIds[0]);
+    if (idx !== -1 && idx < sorted.length - 1) {
+      const temp = sorted[idx].priority;
+      sorted[idx].priority = sorted[idx + 1].priority;
+      sorted[idx + 1].priority = temp;
+      setSubjects([...sorted]);
+    }
+  }
+
   return (
     <div className="bg-white min-h-[600px] border shadow-sm mt-0 text-[11px] flex flex-col">
       
@@ -111,7 +135,7 @@ export default function AddSubjects() {
             </tr>
           </thead>
           <tbody>
-            {subjects.map((s) => (
+            {[...subjects].sort((a,b) => a.priority - b.priority).map((s) => (
               <tr key={s.code} className={`border-b border-slate-200 hover:bg-blue-50 cursor-pointer ${selectedIds.includes(s.code) ? 'bg-blue-50' : ''}`} onClick={() => toggleSelect(s.code, s.subject)}>
                 <td className={`p-1.5 text-center border-r h-6 ${selectedIds.includes(s.code) ? 'bg-[#3b82f6]' : 'bg-white'}`}>
                    <input 
@@ -138,9 +162,20 @@ export default function AddSubjects() {
 
       {/* Footer Action Bar */}
       <div className="bg-white p-2 border-t flex gap-2">
-         <button onClick={handleUpdate} className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">UPDATE</button>
-         <button onClick={handleDelete} className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">DELETE</button>
-         <button className="bg-black text-white font-bold px-4 py-1.5 hover:bg-slate-800 text-[11px] shadow">EXIT</button>
+         <button onClick={handleUpdate} className="bg-blue-600 text-white font-bold px-4 py-1.5 hover:bg-blue-700 text-[11px] shadow">UPDATE SELECTED</button>
+         <button onClick={handleDelete} className="bg-red-600 text-white font-bold px-4 py-1.5 hover:bg-red-700 text-[11px] shadow">DELETE</button>
+         
+         <div className="w-px bg-slate-300 mx-2"></div>
+
+         <button onClick={handleMoveUp} className="bg-slate-200 border border-slate-300 text-slate-800 font-bold px-4 py-1.5 hover:bg-slate-300 text-[11px] shadow flex items-center gap-1">
+             <span className="text-[14px] leading-none">▲</span> Move Up
+         </button>
+         <button onClick={handleMoveDown} className="bg-slate-200 border border-slate-300 text-slate-800 font-bold px-4 py-1.5 hover:bg-slate-300 text-[11px] shadow flex items-center gap-1">
+             <span className="text-[14px] leading-none">▼</span> Move Down
+         </button>
+
+         <div className="flex-1"></div>
+         <button className="bg-black text-white font-bold px-6 py-1.5 hover:bg-slate-800 text-[11px] shadow">EXIT</button>
       </div>
 
     </div>

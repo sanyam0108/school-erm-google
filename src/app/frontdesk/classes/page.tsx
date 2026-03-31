@@ -16,7 +16,12 @@ const mockClasses = [
   { code: 14, class: "VIII", section: "A" },
   { code: 15, class: "IX", section: "A" },
   { code: 16, class: "IX", section: "B" },
-  { code: 17, class: "X", section: "A" },
+  { code: 17, class: "IX", section: "C" },
+  { code: 18, class: "IX", section: "D" },
+  { code: 19, class: "X", section: "A" },
+  { code: 20, class: "X", section: "B" },
+  { code: 21, class: "X", section: "C" },
+  { code: 22, class: "X", section: "D" },
 ]
 
 export default function AddClasses() {

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 import { registerStudentAction } from "@/app/actions/students"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -25,12 +26,28 @@ function DenseInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
 export default function RegistrationForm() {
   const router = useRouter();
 
+  const [session, setSession] = useState("2026-27")
+  useEffect(() => {
+    const s = localStorage.getItem("globalSession")
+    if (s) setSession(s)
+  }, [])
+  const handleSessionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSession(e.target.value)
+    localStorage.setItem("globalSession", e.target.value)
+  }
+
   return (
     <div className="max-w-6xl mx-auto bg-white min-h-screen border-x shadow-sm">
       {/* Top Header / Search */}
       <div className="bg-[#f5f5f5] p-2 border-b flex flex-wrap gap-4 items-end text-[11px]">
         <Field label="Session">
-          <select className="h-6 text-[11px] border border-slate-300 rounded w-24 px-1"><option>2026-27</option></select>
+          <select value={session} onChange={handleSessionChange} className="h-6 text-[11px] border border-slate-300 rounded w-24 px-1">
+             <option value="2024-25">2024-25</option>
+             <option value="2025-26">2025-26</option>
+             <option value="2026-27">2026-27</option>
+             <option value="2027-28">2027-28</option>
+             <option value="2028-29">2028-29</option>
+          </select>
         </Field>
         <Field label="Admission Date">
           <DenseInput type="text" defaultValue="28/03/2026" className="w-24" />
