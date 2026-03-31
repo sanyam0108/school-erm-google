@@ -6,13 +6,14 @@ import { supabase } from "@/lib/supabase"
 export default function StudentReportPage() {
   const [data, setData] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedClasses, setSelectedClasses] = useState<string[]>([])
 
   useEffect(() => {
     async function fetchStudents() {
       const { data: students, error } = await supabase
         .from('students')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('sn', { ascending: true, nullsFirst: false })
       
       if (!error && students) {
         setData(students)
@@ -54,31 +55,42 @@ export default function StudentReportPage() {
              {/* Multi-Class List Box */}
              <div className="flex gap-2 mb-2">
                 <span className="font-semibold text-slate-700 w-[42px] mt-1 shrink-0">Class</span>
-                <div className="flex gap-2">
-                   <input type="checkbox" className="mt-2" /> <span className="text-[10px] mt-1.5">All</span>
+                <div className="flex flex-col gap-2 w-full">
+                  <label className="flex items-center gap-1 font-semibold text-slate-600 text-[10px]">
+                     <input type="checkbox" onChange={(e) => {
+                        if (e.target.checked) setSelectedClasses([])
+                     }} checked={selectedClasses.length === 0} /> All Classes
+                  </label>
+                  <select 
+                     multiple 
+                     value={selectedClasses}
+                     onChange={(e) => {
+                        const values = Array.from(e.target.selectedOptions, option => option.value);
+                        setSelectedClasses(values);
+                     }}
+                     className="border border-slate-300 w-full h-32 p-1 text-[11px] font-semibold text-slate-700 bg-white"
+                  >
+                     <option value="Nursery">NURSERY</option>
+                     <option value="LKG-A">LKG</option>
+                     <option value="UKG-A">UKG</option>
+                     <option value="I-A">I-A</option>
+                     <option value="II-A">II</option>
+                     <option value="III-A">III</option>
+                     <option value="IV-A">IV</option>
+                     <option value="V-A">V-A</option>
+                     <option value="V-B">V-B</option>
+                     <option value="VI-A">VI-A</option>
+                     <option value="VI-B">VI-B</option>
+                     <option value="VII-A">VII-A</option>
+                     <option value="VII-B">VII-B</option>
+                     <option value="VIII-A">VIII-A</option>
+                     <option value="VIII-B">VIII-B</option>
+                     <option value="IX-A">IX-A</option>
+                     <option value="IX-B">IX-B</option>
+                     <option value="XI">XI</option>
+                     <option value="XII">XII</option>
+                  </select>
                 </div>
-                 <select multiple className="border border-slate-300 w-full h-32 p-1 text-[11px] font-semibold text-slate-700 bg-white">
-                    <option>NURSERY</option>
-                    <option>LKG</option>
-                    <option>UKG</option>
-                    <option>I</option>
-                    <option>II</option>
-                    <option>III</option>
-                    <option>IV</option>
-                    <option>V-A</option>
-                    <option>V-B</option>
-                    <option>VI-A</option>
-                    <option>VI-B</option>
-                    <option>VII-A</option>
-                    <option>VII-B</option>
-                    <option>VIII-A</option>
-                    <option>VIII-B</option>
-                    <option>IX-A</option>
-                    <option>IX-B</option>
-                    <option>IX-C</option>
-                    <option>IX-D</option>
-                    <option>XI</option>
-                 </select>
              </div>
 
              {/* Dropdown Filters Block */}
@@ -149,7 +161,7 @@ export default function StudentReportPage() {
                 <h2 className="text-center font-bold text-[#800080] text-[16px] py-4">Student Report</h2>
                 <div className="px-4 py-2 text-[10px] font-bold text-slate-800 flex flex-col gap-2">
                    <span>Session :2025-26 ; Gender : All ; Caste : All ; Transport : All ; Discount : All ; Religion : All</span>
-                   <span className="text-[12px]">Total Records :39</span>
+                   <span className="text-[12px]">Total Records: {selectedClasses.length > 0 ? data.filter(s => selectedClasses.includes(s.admit_class) || selectedClasses.includes(s.current_class)).length : data.length}</span>
                 </div>
              </div>
 
@@ -178,9 +190,9 @@ export default function StudentReportPage() {
                            <tr><td colSpan={12} className="text-center p-4 font-bold text-slate-500">Loading Databse Records...</td></tr>
                         ) : data.length === 0 ? (
                            <tr><td colSpan={12} className="text-center p-4 font-bold text-red-500 bg-red-50">No Student Records Found. Ensure Excel Upload is complete.</td></tr>
-                        ) : data.map((s, idx) => (
+                        ) : (selectedClasses.length > 0 ? data.filter(s => selectedClasses.includes(s.admit_class) || selectedClasses.includes(s.current_class)) : data).map((s, idx) => (
                            <tr key={s.id} className="hover:bg-blue-50/50 bg-white">
-                             <td className="border border-slate-400 p-1 border-l-0 font-semibold">{idx + 1}</td>
+                             <td className="border border-slate-400 p-1 border-l-0 font-semibold">{s.sn || idx + 1}</td>
                              <td className="border border-slate-400 p-1 text-slate-700">{s.id ? String(s.id).substring(0,6) : "N/A"}</td>
                              <td className="border border-slate-400 p-1 text-slate-700 font-bold">{s.sr || "-"}</td>
                              <td className="border border-slate-400 p-1 text-left pl-2 font-bold text-slate-800">{s.name}</td>
