@@ -53,7 +53,7 @@ export default function DataUpload() {
     try {
       const payload = parsedData.map(row => ({
         sn: row["SN"] || null,
-        sr: String(row["SR"] || ""),
+        sr: row["SR"] ? String(row["SR"]).trim() : null,
         name: row["Name"] || "Unknown Student",
         fname: row["Fname"] || null,
         mname: row["Mname"] || null,
